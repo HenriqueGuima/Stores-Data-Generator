@@ -19,6 +19,8 @@ if not os.path.exists("vendas_lojas.db"):
 
 conn.commit()
 
+n_lojas = 5
+
 regions_cities = {
     "Norte": [
         "Porto", "Braga", "Vila Nova de Gaia", "Viana do Castelo", "Bragança", 
@@ -209,7 +211,7 @@ custos_operacionais = []
 for i in range(1, 101):
     custo = {
         "Custo_ID": i,
-        "Loja_ID": random.randint(1, 1000),
+        "Loja_ID": random.randint(1, n_lojas),
         "Tipo de Custo": random.choice(["Renda", "Energia", "Salários", "Manutenção"]),
         "Valor Mensal": round(random.uniform(500, 10000), 2),
         "Data": random_date(),
@@ -226,7 +228,7 @@ for i in range(1, 501):
     cidade = random.choice(regions_cities[regiao])
     colaborador = {
         "Colaborador_ID": i,
-        "Loja_ID": random.randint(1, 1000),
+        "Loja_ID": random.randint(1, n_lojas),
         "Nome": fake.name(),
         "Função": random.choice(["Vendedor", "Gerente", "Caixa", "Operário"]),
         "Horas Trabalhadas Semanais": random.randint(20, 40),
@@ -292,7 +294,7 @@ vendas = []
 for i in range(1, 20001):
     venda = {
         "Venda_ID": i,
-        "Loja_ID": random.randint(1, 1000),
+        "Loja_ID": random.randint(1, n_lojas),
         "Produto_ID": random.randint(1, 1000),
         "Cliente_ID": random.randint(1, 1000),
         "Colaborador_ID": random.randint(1, 500),
@@ -360,7 +362,7 @@ historico_vendas = []
 for i in range(1, 10001):
     historico = {
         "Venda_ID": i,
-        "Loja_ID": random.randint(1, 1000),
+        "Loja_ID": random.randint(1, n_lojas),
         "Produto_ID": random.randint(1, 1000),
         "Cliente_ID": random.randint(1, 1000),
         "Colaborador_ID": random.randint(1, 500),
