@@ -355,6 +355,44 @@ for i in range(1, 2000):
     }
     campanhas.append(campanha)
 
+# HISTÓRICO DE VENDAS
+historico_vendas = []
+for i in range(1, 10001):
+    historico = {
+        "Venda_ID": i,
+        "Loja_ID": random.randint(1, 1000),
+        "Produto_ID": random.randint(1, 1000),
+        "Cliente_ID": random.randint(1, 1000),
+        "Colaborador_ID": random.randint(1, 500),
+        "Quantidade": random.randint(1, 100),
+        "Preço Unitário": round(random.uniform(2, 1000), 2),
+        "Data da Venda": random_date(2014, 2021),
+        "Canal de Venda": random.choice(["Física", "Online"]),
+    }
+    historico_vendas.append(historico)
+
+# Avaliação de Produtos
+avaliacoes = []
+for i in range(1, 1001):
+    avaliacao = {
+        "Produto_ID": i,
+        "Avaliação": round(random.uniform(1, 5), 2),
+        "Comentário": fake.sentence(),
+    }
+    avaliacoes.append(avaliacao)
+
+# Pedidos de Compra
+pedidos_compra = []
+for i in range(1, 1001):
+    pedido = {
+        "Pedido_ID": i,
+        "Fornecedor_ID": random.randint(1, 100),
+        "Produto_ID": random.randint(1, 1000),
+        "Quantidade": random.randint(10, 100),
+        "Data do Pedido": random_date(2014, 2021),
+    }
+    pedidos_compra.append(pedido)   
+
 # Criar DataFrames para as tabelas e salvar em CSV
 df_lojas = pd.DataFrame(lojas)
 df_produtos = pd.DataFrame(produtos)
@@ -367,6 +405,9 @@ df_fornecedores = pd.DataFrame(fornecedores)
 df_custos = pd.DataFrame(custos_operacionais)
 df_colaboradores = pd.DataFrame(colaboradores)
 df_satisfacao = pd.DataFrame(satisfacao)
+df_hist_vendas = pd.DataFrame(historico_vendas)
+df_avaliacoes = pd.DataFrame(avaliacoes)
+df_pedidos_compra = pd.DataFrame(pedidos_compra)
 
 # Salvar os DataFrames como arquivos CSV
 df_lojas.to_csv("CSV/Lojas.csv", index=False)
@@ -380,6 +421,9 @@ df_fornecedores.to_csv("CSV/Fornecedores.csv", index=False)
 df_custos.to_csv("CSV/Custos_Operacionais.csv", index=False)
 df_colaboradores.to_csv("CSV/Colaboradores.csv", index=False)
 df_satisfacao.to_csv("CSV/Satisfacao.csv", index=False)
+df_hist_vendas.to_csv("CSV/Historico_Vendas.csv", index=False)
+df_avaliacoes.to_csv("CSV/Avaliacoes.csv", index=False)
+df_pedidos_compra.to_csv("CSV/Pedidos_Compra.csv", index=False)
 
 # Salvar os DataFrames como tabelas no banco de dados
 save_data("Lojas", df_lojas)
@@ -393,9 +437,13 @@ save_data("Fornecedores", df_fornecedores)
 save_data("Custos_Operacionais", df_custos)
 save_data("Colaboradores", df_colaboradores)
 save_data("Satisfacao", df_satisfacao)
+save_data("Historico_Vendas", df_hist_vendas)
+save_data("Avaliacoes", df_avaliacoes)
+save_data("Pedidos_Compra", df_pedidos_compra)
 
 # Salvar todos os dados em arquivos JSON
-save_all_to_json(["Lojas", "Produtos", "Vendas", "Devolucoes", "Clientes", "Campanhas", "Stock", "Fornecedores", "Custos_Operacionais", "Colaboradores", "Satisfacao"])
+save_all_to_json(["Lojas", "Produtos", "Vendas", "Devolucoes", "Clientes", "Campanhas", "Stock", 
+                  "Fornecedores", "Custos_Operacionais", "Colaboradores", "Satisfacao", "Historico_Vendas", "Avaliacoes", "Pedidos_Compra"])
 
 print("Dados gerados e salvos com sucesso!")
 conn.close()
