@@ -258,7 +258,7 @@ for i in range(1, 1001):
 
 # LOJAS
 lojas = []
-for i in range(1, n_lojas):
+for i in range(1, n_lojas + 1):
     regiao = random.choice(list(regions_cities.keys()))
     cidade = random.choice(regions_cities[regiao])
     
