@@ -5,6 +5,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import random
 import sqlite3
+import os
 
 # Inicializar o gerador de dados fictícios
 fake = Faker('pt_PT')
@@ -12,8 +13,9 @@ fake = Faker('pt_PT')
 conn = sqlite3.connect('vendas_lojas.db')
 cursor = conn.cursor()
 
-with open("dados.sql") as f:
-    cursor.executescript(f.read())
+if not os.path.exists("vendas_lojas.db"):
+    with open("dados.sql") as f:
+        cursor.executescript(f.read())
 
 conn.commit()
 
@@ -128,10 +130,15 @@ temas = [
 def gerar_nome_campanha():
     return f"Campanha {random.choice(adjetivos)} {random.choice(substantivos)} {random.choice(temas)}"
 
-def save_data(table, df, csv):
+def save_data(table, df):
     df.to_sql(table, conn, if_exists='replace', index=False)
     print(f"Tabela {table} criada com sucesso!")
     # df.to_csv(csv, index=False)
+
+def save_all_to_json(tables):
+    for table in tables:
+        df = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+        df.to_json(f"JSON/{table}.json", orient="records")
 
 # Função para gerar datas aleatórias dentro de um intervalo de 10 anos (2014-2024)
 def random_date(start_year=2014, end_year=2024):
@@ -158,7 +165,7 @@ def gerar_nome_campanha_por_canal(canal):
 def random_campaign_dates(start_year=2014, end_year=2024):
     start_date = random_date(start_year, end_year)  # Gerar a data de início
     # A data de fim deve ser posterior à data de início, então garantimos isso
-    delta_days = random.randint(1, 30)  # Garantir pelo menos 1 dia de diferença
+    delta_days = random.randint(15, 365)  # Garantir pelo menos 1 dia de diferença
     delta_seconds = random.randint(1, 86399)  # Garantir pelo menos 1 segundo de diferença
     end_date = start_date + timedelta(days=delta_days, seconds=delta_seconds)
     return start_date, end_date
@@ -175,8 +182,8 @@ for i in range(1, 1001):
     }
     stock.append(item_stock)
 
-df_stock = pd.DataFrame(stock)
-df_stock.to_csv("Stock.csv", index=False)
+# df_stock = pd.DataFrame(stock)
+# df_stock.to_csv("Stock.csv", index=False)
 
 # FORNECEDORES
 fornecedores = []
@@ -194,22 +201,23 @@ for i in range(1, 101):
     }
     fornecedores.append(fornecedor)
 
-df_fornecedores = pd.DataFrame(fornecedores)
-df_fornecedores.to_csv("Fornecedores.csv", index=False)
+# df_fornecedores = pd.DataFrame(fornecedores)
+# df_fornecedores.to_csv("Fornecedores.csv", index=False)
 
 # CUSTOS OPERACIONAIS
 custos_operacionais = []
 for i in range(1, 101):
     custo = {
         "Custo_ID": i,
+        "Loja_ID": random.randint(1, 1000),
         "Tipo de Custo": random.choice(["Renda", "Energia", "Salários", "Manutenção"]),
         "Valor Mensal": round(random.uniform(500, 10000), 2),
         "Data": random_date(),
     }
     custos_operacionais.append(custo)
 
-df_custos = pd.DataFrame(custos_operacionais)
-df_custos.to_csv("Custos_Operacionais.csv", index=False)
+# df_custos = pd.DataFrame(custos_operacionais)
+# df_custos.to_csv("Custos_Operacionais.csv", index=False)
 
 # COLABORADORES
 colaboradores = []
@@ -220,7 +228,7 @@ for i in range(1, 501):
         "Colaborador_ID": i,
         "Loja_ID": random.randint(1, 1000),
         "Nome": fake.name(),
-        "Função": random.choice(["Vendedor", "Gerente", "Caixa", "Estoquista"]),
+        "Função": random.choice(["Vendedor", "Gerente", "Caixa", "Operário"]),
         "Horas Trabalhadas Semanais": random.randint(20, 40),
         "Avaliação de Desempenho": round(random.uniform(1, 5), 2),
         "Vendas Realizadas": random.randint(10, 200),
@@ -228,8 +236,8 @@ for i in range(1, 501):
     }
     colaboradores.append(colaborador)
 
-df_colaboradores = pd.DataFrame(colaboradores)
-df_colaboradores.to_csv("Colaboradores.csv", index=False)
+# df_colaboradores = pd.DataFrame(colaboradores)
+# df_colaboradores.to_csv("Colaboradores.csv", index=False)
 
 # SATISFAÇÃO DO CLIENTE
 satisfacao = []
@@ -243,54 +251,54 @@ for i in range(1, 1001):
     }
     satisfacao.append(feedback)
 
-df_satisfacao = pd.DataFrame(satisfacao)
-df_satisfacao.to_csv("Satisfacao.csv", index=False)
+# df_satisfacao = pd.DataFrame(satisfacao)
+# df_satisfacao.to_csv("Satisfacao.csv", index=False)
 
 # LOJAS
 lojas = []
-for i in range(1, 1001):
+for i in range(1, 5):
     regiao = random.choice(list(regions_cities.keys()))
     cidade = random.choice(regions_cities[regiao])
     
     loja = {
         "Loja_ID": i,
-        "Nome da Loja": f"Loja {fake.company()}",
-        "Região (NUTS II)": regiao,
+        "Nome": f"Loja {fake.company()}",
+        "Região": regiao,
         "Cidade": cidade,
-        "Tipo de Loja (Física/Online)": random.choice(["Física", "Online"]),
+        "Tipo": random.choice(["Física", "Online"]),
     }
     lojas.append(loja)
 
 # Criar DataFrame para a tabela de lojas
-df_lojas = pd.DataFrame(lojas)
-df_lojas.to_csv("Lojas.csv", index=False)
+# df_lojas = pd.DataFrame(lojas)
+# df_lojas.to_csv("Lojas.csv", index=False)
 
 # PRODUTOS
 produtos = []
 for i in range(1, 1001):
     produto = {
         "Produto_ID": i,
-        "Nome do Produto": f"{fake.word().capitalize()} {fake.word().capitalize()}",
+        "Nome": f"{fake.word().capitalize()} {fake.word().capitalize()}",
         "Categoria": random.choice(
             ["Roupas Masculinas", "Roupas Femininas", "Acessórios", "Calçado"]
         ),
         "Preço": round(random.uniform(20, 100), 2),
-        "Custo de Aquisição": round(random.uniform(10, 50), 2),
+        "Custo_Aquisição": round(random.uniform(10, 50), 2),
     }
     produtos.append(produto)
 
 # VENDAS
 vendas = []
-for i in range(1, 10001):
+for i in range(1, 20001):
     venda = {
         "Venda_ID": i,
         "Loja_ID": random.randint(1, 1000),
         "Produto_ID": random.randint(1, 1000),
         "Cliente_ID": random.randint(1, 1000),
+        "Colaborador_ID": random.randint(1, 500),
         "Quantidade": random.randint(1, 100),
         "Preço Unitário": round(random.uniform(2, 1000), 2),
-        "Data de Início": random_date(),
-        "Data de Fim": random_date(),
+        "Data da Venda": random_date(),
         "Canal de Venda": random.choice(["Física", "Online"]),
     }
     vendas.append(venda)
@@ -334,11 +342,11 @@ for i in range(1, 2000):
     data_inicio, data_fim = random_campaign_dates()
     canal = random.choice(["Redes Sociais", "Email Marketing", "Google Ads", "Influenciadores", "TV"])
     store_id = random.randint(1, 1000)
-    vendas_geradas = df_vendas[(df_vendas["Data de Início"] >= data_inicio) & (df_vendas["Data de Fim"] <= data_fim) & (df_vendas["Loja_ID"] == store_id)]["Quantidade"].sum()
+    vendas_geradas = df_vendas[(df_vendas["Data da Venda"] >= data_inicio) & (df_vendas["Data da Venda"] <= data_fim) & (df_vendas["Loja_ID"] == store_id)]["Quantidade"].sum()
     campanha = {
         "Campanha_ID": i,
         "Loja_ID": store_id,
-        "Nome da Campanha": gerar_nome_campanha_por_canal(canal),
+        "Nome": gerar_nome_campanha_por_canal(canal),
         "Canal": canal,
         "Investimento": round(random.uniform(200, 1000), 2),
         "Vendas Geradas": vendas_geradas,
@@ -354,27 +362,40 @@ df_vendas = pd.DataFrame(vendas)
 df_devolucoes = pd.DataFrame(devolucoes)
 df_clientes = pd.DataFrame(clientes)
 df_campanhas = pd.DataFrame(campanhas)
+df_stock = pd.DataFrame(stock)
+df_fornecedores = pd.DataFrame(fornecedores)
+df_custos = pd.DataFrame(custos_operacionais)
+df_colaboradores = pd.DataFrame(colaboradores)
+df_satisfacao = pd.DataFrame(satisfacao)
 
 # Salvar os DataFrames como arquivos CSV
-df_lojas.to_csv("Lojas.csv", index=False)
-df_produtos.to_csv("Produtos.csv", index=False)
-df_vendas.to_csv("Vendas.csv", index=False)
-df_devolucoes.to_csv("Devolucoes.csv", index=False)
-df_clientes.to_csv("Clientes.csv", index=False)
-df_campanhas.to_csv("Campanhas.csv", index=False)
+df_lojas.to_csv("CSV/Lojas.csv", index=False)
+df_produtos.to_csv("CSV/Produtos.csv", index=False)
+df_vendas.to_csv("CSV/Vendas.csv", index=False)
+df_devolucoes.to_csv("CSV/Devolucoes.csv", index=False)
+df_clientes.to_csv("CSV/Clientes.csv", index=False)
+df_campanhas.to_csv("CSV/Campanhas.csv", index=False)
+df_stock.to_csv("CSV/Stock.csv", index=False)
+df_fornecedores.to_csv("CSV/Fornecedores.csv", index=False)
+df_custos.to_csv("CSV/Custos_Operacionais.csv", index=False)
+df_colaboradores.to_csv("CSV/Colaboradores.csv", index=False)
+df_satisfacao.to_csv("CSV/Satisfacao.csv", index=False)
 
 # Salvar os DataFrames como tabelas no banco de dados
-save_data("Lojas", df_lojas, "Lojas.csv")
-save_data("Produtos", df_produtos, "Produtos.csv")
-save_data("Vendas", df_vendas, "Vendas.csv")
-save_data("Devolucoes", df_devolucoes, "Devolucoes.csv")
-save_data("Clientes", df_clientes, "Clientes.csv")
-save_data("Campanhas", df_campanhas, "Campanhas.csv")
-save_data("Stock", df_stock, "Stock.csv")
-save_data("Fornecedores", df_fornecedores, "Fornecedores.csv")
-save_data("Custos_Operacionais", df_custos, "Custos_Operacionais.csv")
-save_data("Colaboradores", df_colaboradores, "Colaboradores.csv")
-save_data("Satisfacao", df_satisfacao, "Satisfacao.csv")
+save_data("Lojas", df_lojas)
+save_data("Produtos", df_produtos)
+save_data("Vendas", df_vendas)
+save_data("Devolucoes", df_devolucoes)
+save_data("Clientes", df_clientes)
+save_data("Campanhas", df_campanhas)
+save_data("Stock", df_stock)
+save_data("Fornecedores", df_fornecedores)
+save_data("Custos_Operacionais", df_custos)
+save_data("Colaboradores", df_colaboradores)
+save_data("Satisfacao", df_satisfacao)
+
+# Salvar todos os dados em arquivos JSON
+save_all_to_json(["Lojas", "Produtos", "Vendas", "Devolucoes", "Clientes", "Campanhas", "Stock", "Fornecedores", "Custos_Operacionais", "Colaboradores", "Satisfacao"])
 
 print("Dados gerados e salvos com sucesso!")
 conn.close()
