@@ -129,6 +129,40 @@ temas = [
      "Tradicional", "Contemporânea"
 ]
 
+# # Categorias
+# categorias = [
+#     "Roupas", "Calçado", "Acessórios", "Bijuteria", "Relógios",
+# ]
+
+# # Nome peças de roupa
+# produtos = [
+#     "Camisola", "T-shirt", "Blusa", "Top", "Casaco", "Blusão", "Parka",
+#     "Sobretudo", "Fato", "Fato de Treino", "Calças", "Jeans", "Calções",
+#     "Saias", "Vestido", "Macacão", "Jardineiras", "Fato de Banho",
+#     "Biquíni", "Calções de Banho", "Chinelos", "Sapatos", "Botas",
+#     "Ténis", "Sapatilhas", "Sandálias", "Chinelos", "Mocassins",
+# ]
+
+# Map categories to products
+category_products = {
+    "Roupas": [
+        "Camisola", "T-shirt", "Blusa", "Top", "Casaco", "Blusão", "Parka",
+        "Sobretudo", "Fato", "Fato de Treino", "Calças", "Jeans", "Calções",
+        "Saias", "Vestido", "Macacão", "Jardineiras", "Fato de Banho",
+        "Biquíni", "Calções de Banho",
+    ],
+    "Calçado": [
+        "Chinelos", "Sapatos", "Botas", "Ténis", "Sapatilhas", "Sandálias", "Chinelos", "Mocassins",
+    ],
+}
+
+# Tamanhos
+tamanhos_roupas = ["XS", "S", "M", "L", "XL", "XXL"]
+tamanhos_calcado = ["35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45"]
+
+# Cores
+cores = ["Preto", "Branco", "Cinzento", "Azul", "Verde", "Vermelho", "Amarelo", "Rosa", "Laranja", "Roxo"]    
+
 def gerar_nome_campanha():
     return f"Campanha {random.choice(adjetivos)} {random.choice(substantivos)} {random.choice(temas)}"
 
@@ -192,14 +226,17 @@ fornecedores = []
 for i in range(1, 101):
     regiao = random.choice(list(regions_cities.keys()))
     cidade = random.choice(regions_cities[regiao])
+    fornecedor_nome = fake.company()
 
     fornecedor = {
         "Fornecedor_ID": i,
-        "Nome": fake.company(),
+        "Nome": fornecedor_nome,
         "Histórico de Fornecimento": random.randint(1, 100),
         "Custo de Transporte": round(random.uniform(50, 500), 2),
         "Prazo Médio de Entrega (dias)": random.randint(1, 15),
         "Cidade": cidade,
+        "Logo": f"https://ui-avatars.com/api/?name={fornecedor_nome.replace(' ', '+')}&size=256&background=random&color=fff",
+
     }
     fornecedores.append(fornecedor)
 
@@ -235,6 +272,8 @@ for i in range(1, 501):
         "Avaliação de Desempenho": round(random.uniform(1, 5), 2),
         "Vendas Realizadas": random.randint(10, 200),
         "Naturalidade": cidade,
+        "Imagem": f"https://randomuser.me/api/portraits/{'men' if random.choice(['M', 'F']) == 'M' else 'women'}/{random.randint(0, 99)}.jpg",
+
     }
     colaboradores.append(colaborador)
 
@@ -278,16 +317,22 @@ for i in range(1, n_lojas + 1):
 # PRODUTOS
 produtos = []
 for i in range(1, 1001):
+    categoria = random.choice(list(category_products.keys()))
+
     produto = {
         "Produto_ID": i,
-        "Nome": f"{fake.word().capitalize()} {fake.word().capitalize()}",
-        "Categoria": random.choice(
-            ["Roupas Masculinas", "Roupas Femininas", "Acessórios", "Calçado"]
-        ),
+        "Nome": f"{fake.word().capitalize()}",
+        "Categoria": categoria,
+        "Cor": random.choice(cores),
+        "Descrição": fake.sentence(),
+        "Tamanho": random.choice(tamanhos_roupas) if categoria == "Roupas" else random.choice(tamanhos_calcado),
         "Preço": round(random.uniform(20, 100), 2),
         "Custo_Aquisição": round(random.uniform(10, 50), 2),
     }
     produtos.append(produto)
+
+# CATEGORIAS
+categorias = []
 
 # VENDAS
 vendas = []
@@ -334,6 +379,7 @@ for i in range(1, 1001):
         "Cidade": cidade,
         "Canal de Compra": random.choice(["Física", "Online"]),
         "Total de Compras": round(random.uniform(100, 1000), 2),
+        "Imagem": f"https://randomuser.me/api/portraits/{'men' if random.choice(['M', 'F']) == 'M' else 'women'}/{random.randint(0, 99)}.jpg",
     }
     clientes.append(cliente)
 
@@ -375,7 +421,7 @@ for i in range(1, 10001):
 
 # Avaliação de Produtos
 avaliacoes = []
-for i in range(1, 1001):
+for i in range(1, 10001):
     avaliacao = {
         "Produto_ID": i,
         "Avaliação": round(random.uniform(1, 5), 2),
